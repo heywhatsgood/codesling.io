@@ -5,6 +5,7 @@
     "strict": ["error", "global"],
     "curly": "warn",
     "import/prefer-default-export": 0,
-    "no-await-in-loop": "off"
+    "no-await-in-loop": "off",
+    "linebreak-style": 0
   }
 }
