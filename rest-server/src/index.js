@@ -2,17 +2,25 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
+import https from 'https';
 
 import log from './lib/log';
 import router from './routes';
 import './db';
 
 const app = express();
-const port = 4990 || process.env.PORT;
+const port = 8443 || process.env.PORT;
+
+const sslOptions = {
+  key: fs.readFileSync('key.pem'),
+  cert: fs.readFileSync('cert.pem'),
+  passphrase: 'codesling',
+};
 
 app.use(bodyParser.json());
 app.use(cors({
-  allowedHeaders: 'Content-Type',
+  allowedHeaders: 'Content-Type,Authorization',
   methods: ['GET, POST, PUT, DELETE, OPTIONS'],
 }));
 
@@ -20,5 +28,6 @@ app.use(express.static(path.join(__dirname, '../../client/build')));
 
 app.use('/api', router);
 
-app.listen(port, () => log(`rest-server listening on port ${port}`));
+// app.listen(port, () => log(`rest-server listening on port ${port}`));
+https.createServer(sslOptions, app).listen(port, () => log(`rest-server listening on port ${port}`));
 
