@@ -13,8 +13,8 @@ const app = express();
 const port = 8443 || process.env.PORT;
 
 const sslOptions = {
-  key: fs.readFileSync('./key.pem'),
-  cert: fs.readFileSync('./cert.pem'),
+  key: fs.readFileSync(path.join(__dirname, 'key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, 'cert.pem')),
   passphrase: 'codesling',
 };
 
