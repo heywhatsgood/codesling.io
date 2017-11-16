@@ -10,7 +10,7 @@ import router from './routes';
 import './db';
 
 const app = express();
-const port = 8443 || process.env.PORT;
+const port = 443 || process.env.PORT;
 
 const sslOptions = {
   key: fs.readFileSync(path.join(__dirname, 'key.pem')),
