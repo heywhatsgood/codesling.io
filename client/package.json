@@ -25,7 +25,7 @@
     "build-css": "node-sass-chokidar src/ -o src/",
     "eject": "react-scripts eject",
     "lint": "eslint src --ext .js",
-    "watch-css": "node-sass-chokidar src/ -o src/ --watch",
+    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch",
     "start": "npm-run-all -p watch-css start-js",
     "start-js": "react-scripts start",
     "test": "react-scripts test --env=jsdom"
