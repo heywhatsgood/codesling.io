@@ -12,7 +12,7 @@ const port = 4990 || process.env.PORT;
 
 app.use(bodyParser.json());
 app.use(cors({
-  allowedHeaders: 'Content-Type,Authorization',
+  allowedHeaders: 'Content-Type',
   methods: ['GET, POST, PUT, DELETE, OPTIONS'],
 }));
 
