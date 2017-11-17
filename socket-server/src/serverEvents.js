@@ -1,3 +1,5 @@
+import { debounce } from 'lodash';
+
 /**
  *
  *  Server emissions
@@ -10,13 +12,28 @@ export const serverInitialState = ({ client, room }) => {
   });
 };
 
-export const serverChanged = ({ io, room }) => {
+export const serverChanged = ({ io, client, room }, metadata) => {
+  const roomId = room.get('id');
+  client
+    .to(roomId)
+    .emit('server.changed', { metadata });
+};
+
+export const serverHighlight= ({ io, client, room }) => {
+  const roomId = room.get('id');
+  client
+    .to(roomId)
+    .emit('server.highlight', { metadata });
+};
+
+export const serverSync = debounce(({ io, client, room }, metadata) => {
   const roomId = room.get('id');
   const text = room.get('text');
-  io
-    .in(roomId)
-    .emit('server.changed', { text });
-};
+  const highlight = room.get('highlight')
+  client
+    .to(roomId)
+    .emit('server.sync', { metadata, text });
+}, 200);
 
 export const serverLeave = ({ io, room }) => {
   io

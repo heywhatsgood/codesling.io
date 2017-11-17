@@ -2,7 +2,6 @@ const startingText =
 `function hello() {
   console.log('hello!');
 }
-
 hello();
 `;
 
