@@ -7,6 +7,7 @@ import {
   serverLeave,
   serverRun,
   serverMessage,
+  serverSync,
 } from './serverEvents';
 
 /**
@@ -25,10 +26,10 @@ const clientReady = ({ io, client, room }) => {
   serverInitialState({ io, client, room });
 };
 
-const clientUpdate = ({ io, client, room }, payload) => {
-  log('client update heard. payload.text = ', payload.text);
-  room.set('text', payload.text);
-  serverChanged({ io, client, room });
+const clientUpdate = ({ io, client, room }, { text, metadata }) => {
+  room.set('text', text);
+  serverSync({ io, client, room, }, metadata);
+  serverChanged({ io, client, room }, metadata);
 };
 
 const clientDisconnect = ({ io, room }) => {

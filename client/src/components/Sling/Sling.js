@@ -14,9 +14,11 @@ import './Sling.css';
 
 class Sling extends Component {
   state = {
-    text: '',
+    initialText: '',
     stdout: ''
   }
+
+  synced = true;
 
   runCode = () => {
     this.socket.emit('client.run');
@@ -33,13 +35,29 @@ class Sling extends Component {
       this.socket.emit('client.ready');
     });
 
-    this.socket.on('server.initialState', ({ id, text }) => {
-      this.setState({ id, text });
+    this.socket.on('server.initialState', ({ id, text: initialText }) => {
+      this.setState({ id, initialText });
     });
 
-    this.socket.on('server.changed', ({ text }) => {
-      this.setState({ text });
+    this.socket.on('server.changed', ({ metadata }) => {
+      const { from, to, text, origin } = metadata;
+      this.synced = false;
+      this.editor.replaceRange(
+        text,
+        from,
+        to,
+        origin
+      );
     });
+
+    this.socket.on('server.sync', ({ text, metadata }) => {
+      this.synced = false;
+      const cursorPosition = this.editor.getCursor();
+      console.log('text = ', text);
+      console.log('metadata = ', metadata);
+      this.updateLine(text, metadata);
+      this.editor.setCursor(cursorPosition);
+    })
 
     this.socket.on('server.run', ({ stdout }) => {
       this.setState({ stdout });
@@ -52,9 +70,25 @@ class Sling extends Component {
     window.removeEventListener('resize', this.setEditorSize);
   }
 
-  handleChange = throttle((editor, metadata, value) => {
-    this.socket.emit('client.update', { text: value });
-  }, 250)
+  updateLine(text, metadata) {
+    const { from, to } = metadata;
+    text = text.split('\n')[from.line].slice(0, from.ch);
+    this.editor.replaceRange(text, { 
+      line: from.line,
+      ch: 0
+    }, to);
+  }
+
+  handleChange = (editor, metadata, value) => {
+    if (this.synced) {
+      this.socket.emit('client.update', { 
+        metadata: metadata,
+        text: value,
+      });
+    } else {
+      this.synced = !this.synced;
+    }
+  }
 
   setEditorSize = throttle(() => {
     this.editor.setSize(null, `${window.innerHeight - 80}px`);
@@ -73,7 +107,7 @@ class Sling extends Component {
         <div className="code-editor-container">
           <CodeMirror
             editorDidMount={this.initializeEditor}
-            value={this.state.text}
+            value={this.state.initialText}
             options={{
               mode: 'javascript',
               lineNumbers: true,
