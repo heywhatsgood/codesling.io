@@ -19,10 +19,9 @@ class Sling extends Component {
     highlight: []
   }
 
-  // const highlight=[];
+  // highlight=[];
 
   synced = true;
-  highlighting = false;
 
   runCode = () => {
     this.socket.emit('client.run');
@@ -54,22 +53,21 @@ class Sling extends Component {
       );
     });
 
-    this.socket.on('server.sync', ({ text, metadata }) => {
+    this.socket.on('server.sync', ({ text, metadata, highlight }) => {
       this.synced = false;
       const cursorPosition = this.editor.getCursor();
       console.log('text = ', text);
+      console.log('highlight = ', highlight);
       console.log('metadata = ', metadata);
       this.updateLine(text, metadata);
       this.editor.setCursor(cursorPosition);
     })
 
     /* ======= SOCKET LISTENING =======
-    this.socket.on('server.highlight', ({ highlight }) => {
-      this.highlighting = false;
-      const cursorPosition = this.editor.getCursor();
-      SET STATE?
-     
-    })*/
+    this.socket.on('server.highlight', () => {
+    
+      console.log('after server highlight')
+    }) */
 
     this.socket.on('server.run', ({ stdout }) => {
       this.setState({ stdout });
@@ -90,13 +88,14 @@ class Sling extends Component {
       ch: 0
     }, to);
   }
-/* SOCKET EMITTING HERE:
 
+/* SOCKET EMITTING HERE:
+    console.log('function called here')
   this.socket.emit('client.highlight', {
     highlight
-  })
+  })} */
 
-*/
+
 
 
   handleChange = (editor, metadata, value) => {
@@ -144,6 +143,13 @@ class Sling extends Component {
             color="white"
             onClick={this.runCode}
           />
+          {/* <Button
+            className="run-btn"
+            text="HLTEST"
+            backgroundColor="red"
+            color="white"
+            onClick={this.hlfunc}
+          /> */}
           <StdOut 
             text={this.state.stdout}
           />

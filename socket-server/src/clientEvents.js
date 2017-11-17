@@ -8,7 +8,7 @@ import {
   serverRun,
   serverMessage,
   serverSync,
-  serverHighlight
+  serverHighlight,
 } from './serverEvents';
 
 /**
@@ -34,6 +34,7 @@ const clientUpdate = ({ io, client, room }, { text, metadata }) => {
 };
 
 const clientHighlight = ({ io, client, room }, { highlight }) => {
+  log('at client socket highlight', highlight)
   room.set('highlight', highlight);
   serverSync({ io, client, room, });
   serverHighlight({ io, client, room });
