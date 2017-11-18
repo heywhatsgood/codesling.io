@@ -11,11 +11,14 @@ import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/base16-dark.css';
 import './Sling.css';
+import SlingUsers from './SlingUsers.js';
+
 
 class Sling extends Component {
   state = {
     initialText: '',
     stdout: '',
+    users:[]
   }
 
   highlight=[1,2,1,4];
@@ -109,12 +112,12 @@ class Sling extends Component {
       );
     });
 
-    this.socket.on('server.sync', ({ text, metadata }) => {
+    this.socket.on('server.sync', ({ text, metadata, highlight }) => {
       this.synced = false;
       const cursorPosition = this.editor.getCursor();
-      console.log('text = ', text);
-      console.log('highlight = ');
-      console.log('metadata = ', metadata);
+      // console.log('text = ', text);
+      console.log('highlight = ', highlight);
+      // console.log('metadata = ', metadata);
       this.updateLine(text, metadata);
       this.editor.setCursor(cursorPosition);
     })
@@ -186,6 +189,7 @@ class Sling extends Component {
           />
         </div>
         <div className="stdout-container">
+        <SlingUsers users={ this.state.users}/>
           <Button
             className="run-btn"
             text="Run Code"
