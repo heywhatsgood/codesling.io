@@ -5,10 +5,12 @@ import { debounce } from 'lodash';
  *  Server emissions
  *
  */
+// let connections = 0
 export const serverInitialState = ({ client, room }) => {
   client.emit('server.initialState', {
     id: client.id,
     text: room.get('text'),
+    userCount: room.get('userCount'),
   });
 };
 
@@ -19,12 +21,12 @@ export const serverChanged = ({ io, client, room }, metadata) => {
     .emit('server.changed', { metadata });
 };
 
-export const serverHighlight = ({ io, client, room }) => {
+export const serverHighlight = ({ io, client, room }, userColor) => {
  const roomId = room.get('id');
  const highlight = room.get('highlight')
   client
     .to(roomId)
-    .emit('server.highlight', { highlight });
+    .emit('server.highlight', { highlight, userColor });
 };
 
 export const serverSync = debounce(({ io, client, room }, metadata) => {
@@ -39,7 +41,7 @@ export const serverSync = debounce(({ io, client, room }, metadata) => {
 export const serverLeave = ({ io, room }) => {
   io
     .in(room.get('id'))
-    .emit('server.leave');
+    .emit('server.leave', {userCount: room.get('userCount')});
 };
 
 export const serverRun = ({ io, room }, stdout) => {

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import CodeMirror from 'react-codemirror2';
 import io from 'socket.io-client/dist/socket.io.js';
 import { throttle } from 'lodash';
-
+import {Link} from 'react-router-dom'
 import Button from '../globals/Button';
 import StdOut from './StdOut';
 import EditorHeader from './EditorHeader';
@@ -18,16 +18,18 @@ class Sling extends Component {
   state = {
     initialText: '',
     stdout: '',
-    users:[]
+    users:[],
+    // userCount: 0
   }
 
-  highlight=[1,2,1,4];
+  colors=["#00FFFF","#FFFF00","#DDA0DD", "#FA8072", "#7CFC00", "#FF7F50"];
 
   // <=== The below function is responsible for rendering highlights
 
   renderHL = () => {
     let cordarray = this.highlights;
-
+    let hlColor = this.userColor
+    console.log('at renderHL', hlColor)
     var marker = this.editor.markText({
       line: cordarray[0],
       ch: cordarray[1]
@@ -35,7 +37,7 @@ class Sling extends Component {
       line: cordarray[2],
       ch: cordarray[3]
     }, {
-      css: "background-color: #FFFF00"
+      css: "background-color: " + hlColor
     });
 
     var marker2 = this.editor.markText({
@@ -45,7 +47,7 @@ class Sling extends Component {
       line: cordarray[0],
       ch: cordarray[1]
     }, {
-      css: "background-color: #FFFF00"
+      css: "background-color: "+ hlColor
     });
 
     function timeclear(){
@@ -60,6 +62,7 @@ class Sling extends Component {
     
   getSelection = () => {
     var cords = [];
+    let setColor = this.colors[this.state.userCount]
     var data = this.editor.doc.listSelections()
     cords.push(data[0].head.line);
     cords.push(data[0].head.ch);
@@ -71,7 +74,8 @@ class Sling extends Component {
     this.highlights = cords;
     
     this.socket.emit('client.highlight', {
-      highlight: cords
+      highlight: cords,
+      userColor: setColor
     })
 
   }
@@ -94,11 +98,19 @@ class Sling extends Component {
     });
 
     this.socket.on('connect', () => {
+      let newCount= this.state.userCount++;
+      // this.setState({
+      //   userCount: newCount
+      // })
+      console.log('at init', this.state)
       this.socket.emit('client.ready');
     });
 
-    this.socket.on('server.initialState', ({ id, text: initialText }) => {
-      this.setState({ id, initialText });
+    this.socket.on('server.initialState', ({ id, text: initialText, userCount }) => {
+      console.log('at server init state', userCount)
+      this.setState({ id, initialText, userCount });
+  
+      
     });
 
     this.socket.on('server.changed', ({ metadata }) => {
@@ -124,8 +136,9 @@ class Sling extends Component {
 
     // <=== This function is responsible for listening to changes in highlight
 
-    this.socket.on('server.highlight', ({ highlight }) => {
+    this.socket.on('server.highlight', ({ highlight, userColor }) => {
       this.highlights = highlight
+      this.userColor= userColor
       this.renderHL()
   
       console.log('after server highlight', this.highlights)
@@ -133,6 +146,10 @@ class Sling extends Component {
 
     this.socket.on('server.run', ({ stdout }) => {
       this.setState({ stdout });
+    });
+
+    this.socket.on('server.run', ({ userCount }) => {
+      this.setState({ userCount });
     });
 
     window.addEventListener('resize', this.setEditorSize);
@@ -160,6 +177,11 @@ class Sling extends Component {
     } else {
       this.synced = !this.synced;
     }
+  }
+
+  leaveRoom = () => {
+    // this.props.route
+    this.socket.emit('client.disconnect')
   }
 
   setEditorSize = throttle(() => {
@@ -197,6 +219,20 @@ class Sling extends Component {
             color="white"
             onClick={this.runCode}
           />
+          <Button className="btn run-btn"
+            text={<Link color="white" to="/">
+            Leave Room
+          </Link>}
+            backgroundColor="white"
+            // color="white"
+            onClick={this.leaveRoom}
+            >
+          {/* <span className="auth-link">
+              <Link to="/auth/signup">
+                Sign up
+              </Link>
+            </span> */}
+          </Button>
           <StdOut 
             text={this.state.stdout}
           />

@@ -22,8 +22,13 @@ import {
  *  @url {https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map}
  *
  */
+
+let userCount = 0;
+
 const clientReady = ({ io, client, room }) => {
-  log('client ready heard');
+  log('client ready heard', userCount);
+  userCount+=1
+  room.set('userCount', userCount)
   serverInitialState({ io, client, room });
 };
 
@@ -33,15 +38,18 @@ const clientUpdate = ({ io, client, room }, { text, metadata }) => {
   serverChanged({ io, client, room }, metadata);
 };
 
-const clientHighlight = ({ io, client, room }, { highlight }) => {
-  log('at client socket highlight', highlight)
+const clientHighlight = ({ io, client, room }, { highlight, userColor }) => {
+  log('at client socket highlight', highlight, userColor)
   room.set('highlight', highlight);
   // serverSync({ io, client, room, });
-  serverHighlight({ io, client, room });
+  serverHighlight({ io, client, room }, userColor);
 };
 
 const clientDisconnect = ({ io, room }) => {
-  log('client disconnected');
+  log('client disconnected', userCount);
+  userCount-=1
+  room.set('userCount', userCount)
+  log('client disconnected2', userCount);
   serverLeave({ io, room });
 };
 
