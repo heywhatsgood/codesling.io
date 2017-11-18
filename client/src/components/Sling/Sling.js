@@ -64,13 +64,11 @@ class Sling extends Component {
       this.editor.setCursor(cursorPosition);
     })
 
-    // ======= SOCKET LISTENING =======
+    /* ======= SOCKET LISTENING =======
     this.socket.on('server.highlight', ({ highlight }) => {
-      // this.highlighting = false;
-      // const cursorPosition = this.editor.getCursor();
-      // SET STATE?
+     
       console.log('after server highlight', { highlight })
-    })
+    })*/
 
     this.socket.on('server.run', ({ stdout }) => {
       this.setState({ stdout });
@@ -91,13 +89,11 @@ class Sling extends Component {
       ch: 0
     }, to);
   }
-// SOCKET EMITTING HERE:
-  hlfunc =() =>{
-    let highlight = [1,2,1,4]
+/* SOCKET EMITTING HERE:
     console.log('function called here')
   this.socket.emit('client.highlight', {
     highlight
-  })}
+  })} */
 
 
 
@@ -147,13 +143,13 @@ class Sling extends Component {
             color="white"
             onClick={this.runCode}
           />
-          <Button
+          {/* <Button
             className="run-btn"
             text="HLTEST"
             backgroundColor="red"
             color="white"
             onClick={this.hlfunc}
-          />
+          /> */}
           <StdOut 
             text={this.state.stdout}
           />
