@@ -11,12 +11,15 @@ import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/base16-dark.css';
 import './Sling.css';
+import SlingUsers from './SlingUsers.js';
+
 
 class Sling extends Component {
   state = {
     initialText: '',
     stdout: '',
-    highlight: []
+    highlight: [],
+    users:[]
   }
 
   highlight=[1,2,1,4];
@@ -54,21 +57,24 @@ class Sling extends Component {
       );
     });
 
-    this.socket.on('server.sync', ({ text, metadata }) => {
+    this.socket.on('server.sync', ({ text, metadata, highlight }) => {
       this.synced = false;
       const cursorPosition = this.editor.getCursor();
-      console.log('text = ', text);
-      console.log('highlight = ');
-      console.log('metadata = ', metadata);
+      // console.log('text = ', text);
+      console.log('highlight = ', highlight);
+      // console.log('metadata = ', metadata);
       this.updateLine(text, metadata);
       this.editor.setCursor(cursorPosition);
     })
 
-    /* ======= SOCKET LISTENING =======
-    this.socket.on('server.highlight', ({ highlight }) => {
-     
-      console.log('after server highlight', { highlight })
-    })*/
+    // ======= SOCKET LISTENING =======
+    this.socket.on('server.highlight', ({highlight}) => {
+      // this.highlighting = false;
+      // const cursorPosition = this.editor.getCursor();
+      // SET STATE?
+      console.log('after server highlight', highlight)
+    
+    })
 
     this.socket.on('server.run', ({ stdout }) => {
       this.setState({ stdout });
@@ -89,11 +95,13 @@ class Sling extends Component {
       ch: 0
     }, to);
   }
-/* SOCKET EMITTING HERE:
+// SOCKET EMITTING HERE:
+  hlfunc =() =>{
+    let highlight = [1,2,1,4]
     console.log('function called here')
   this.socket.emit('client.highlight', {
     highlight
-  })} */
+  })}
 
 
 
@@ -136,6 +144,7 @@ class Sling extends Component {
           />
         </div>
         <div className="stdout-container">
+        <SlingUsers users={ this.state.users}/>
           <Button
             className="run-btn"
             text="Run Code"
@@ -143,13 +152,13 @@ class Sling extends Component {
             color="white"
             onClick={this.runCode}
           />
-          {/* <Button
+          <Button
             className="run-btn"
             text="HLTEST"
             backgroundColor="red"
             color="white"
             onClick={this.hlfunc}
-          /> */}
+          />
           <StdOut 
             text={this.state.stdout}
           />
