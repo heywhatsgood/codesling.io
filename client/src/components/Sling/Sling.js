@@ -16,10 +16,62 @@ class Sling extends Component {
   state = {
     initialText: '',
     stdout: '',
-    highlight: []
   }
 
   highlight=[1,2,1,4];
+
+  // <=== The below function is responsible for rendering highlights
+
+  renderHL = () => {
+    let cordarray = this.highlights;
+
+    var marker = this.editor.markText({
+      line: cordarray[0],
+      ch: cordarray[1]
+    }, {
+      line: cordarray[2],
+      ch: cordarray[3]
+    }, {
+      css: "background-color: #FFFF00"
+    });
+
+    var marker2 = this.editor.markText({
+      line: cordarray[2],
+      ch: cordarray[3]
+    }, {
+      line: cordarray[0],
+      ch: cordarray[1]
+    }, {
+      css: "background-color: #FFFF00"
+    });
+
+    function timeclear(){
+      marker.clear();
+      marker2.clear();
+    }
+    //This clears the highlight after two seconds.
+    setTimeout(timeclear, 2000);
+  }
+    
+      // <=== This function is responsible for getting your cordinates as you move
+    
+  getSelection = () => {
+    var cords = [];
+    var data = this.editor.doc.listSelections()
+    cords.push(data[0].head.line);
+    cords.push(data[0].head.ch);
+    cords.push(data[0].anchor.line);
+    cords.push(data[0].anchor.ch);
+    // Uncommenting the following will log cordinates of your cursor constantly
+    // console.log(cords)
+  
+    this.highlights = cords;
+    
+    this.socket.emit('client.highlight', {
+      highlight: cords
+    })
+
+  }
 
   synced = true;
   highlighting = false;
@@ -29,6 +81,9 @@ class Sling extends Component {
   }
 
   componentDidMount() {
+
+    this.editor.on('cursorActivity', this.getSelection);
+
     this.socket = io(process.env.REACT_APP_SOCKET_SERVER_URL, {
       query: {
         roomId: this.props.slingId,
@@ -64,11 +119,14 @@ class Sling extends Component {
       this.editor.setCursor(cursorPosition);
     })
 
-    /* ======= SOCKET LISTENING =======
+    // <=== This function is responsible for listening to changes in highlight
+
     this.socket.on('server.highlight', ({ highlight }) => {
-     
-      console.log('after server highlight', { highlight })
-    })*/
+      this.highlights = highlight
+      this.renderHL()
+  
+      console.log('after server highlight', this.highlights)
+    });
 
     this.socket.on('server.run', ({ stdout }) => {
       this.setState({ stdout });
@@ -89,14 +147,6 @@ class Sling extends Component {
       ch: 0
     }, to);
   }
-/* SOCKET EMITTING HERE:
-    console.log('function called here')
-  this.socket.emit('client.highlight', {
-    highlight
-  })} */
-
-
-
 
   handleChange = (editor, metadata, value) => {
     if (this.synced) {
@@ -143,13 +193,6 @@ class Sling extends Component {
             color="white"
             onClick={this.runCode}
           />
-          {/* <Button
-            className="run-btn"
-            text="HLTEST"
-            backgroundColor="red"
-            color="white"
-            onClick={this.hlfunc}
-          /> */}
           <StdOut 
             text={this.state.stdout}
           />
