@@ -22,7 +22,7 @@ class Sling extends Component {
     // userCount: 0
   }
 
-  colors=["#00FFFF","#FFFF00","#DDA0DD", "#FA8072", "#7CFC00", "#FF7F50"];
+  colors=["#00FFFF","#FFFF00","#DDA0DD", "#FA8072", "#7CFC00", "#FF7F50", "#00FFFF","#FFFF00","#DDA0DD", "#FA8072", "#7CFC00", "#FF7F50"];
 
   // <=== The below function is responsible for rendering highlights
 
@@ -168,6 +168,11 @@ class Sling extends Component {
     }, to);
   }
 
+  addUser=()=>{
+    let user= localStorage.username || 'anonymous'
+    this.state.users.push(user)
+  }
+
   handleChange = (editor, metadata, value) => {
     if (this.synced) {
       this.socket.emit('client.update', { 
@@ -192,6 +197,7 @@ class Sling extends Component {
     // give the component a reference to the CodeMirror instance
     this.editor = editor;
     this.setEditorSize();
+    this.addUser();
   }
 
   render() {
@@ -224,7 +230,7 @@ class Sling extends Component {
             Leave Room
           </Link>}
             backgroundColor="white"
-            // color="white"
+            color="white"
             onClick={this.leaveRoom}
             >
           {/* <span className="auth-link">

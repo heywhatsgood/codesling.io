@@ -23,7 +23,7 @@ import {
  *
  */
 
-let userCount = 0;
+let userCount = 1;
 
 const clientReady = ({ io, client, room }) => {
   log('client ready heard', userCount);

@@ -7,14 +7,16 @@ import React, { Component } from 'react';
 class SlingUsers extends Component {
   state = { }
 
-
+  colors=["#00FFFF","#FFFF00","#DDA0DD", "#FA8072", "#7CFC00", "#FF7F50", "#00FFFF","#FFFF00","#DDA0DD", "#FA8072", "#7CFC00", "#FF7F50"];
 
   render() {
     // console.log('inside sling users', this.props)
     const {users} = this.props
     return (
       <div>
-        <h3>Collaborators: {users.map(user => user )}</h3>
+        <h3>Collaborators: 
+        
+        {users.map(user => user )}</h3>
       </div>
     );
   }
