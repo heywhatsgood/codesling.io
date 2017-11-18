@@ -19,9 +19,10 @@ class Sling extends Component {
     highlight: []
   }
 
-  // highlight=[];
+  highlight=[1,2,1,4];
 
   synced = true;
+  highlighting = false;
 
   runCode = () => {
     this.socket.emit('client.run');
@@ -53,21 +54,21 @@ class Sling extends Component {
       );
     });
 
-    this.socket.on('server.sync', ({ text, metadata, highlight }) => {
+    this.socket.on('server.sync', ({ text, metadata }) => {
       this.synced = false;
       const cursorPosition = this.editor.getCursor();
       console.log('text = ', text);
-      console.log('highlight = ', highlight);
+      console.log('highlight = ');
       console.log('metadata = ', metadata);
       this.updateLine(text, metadata);
       this.editor.setCursor(cursorPosition);
     })
 
     /* ======= SOCKET LISTENING =======
-    this.socket.on('server.highlight', () => {
-    
-      console.log('after server highlight')
-    }) */
+    this.socket.on('server.highlight', ({ highlight }) => {
+     
+      console.log('after server highlight', { highlight })
+    })*/
 
     this.socket.on('server.run', ({ stdout }) => {
       this.setState({ stdout });
@@ -88,7 +89,6 @@ class Sling extends Component {
       ch: 0
     }, to);
   }
-
 /* SOCKET EMITTING HERE:
     console.log('function called here')
   this.socket.emit('client.highlight', {

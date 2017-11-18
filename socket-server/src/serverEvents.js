@@ -20,20 +20,20 @@ export const serverChanged = ({ io, client, room }, metadata) => {
 };
 
 export const serverHighlight = ({ io, client, room }) => {
-
-  const roomId = room.get('id');
+ const roomId = room.get('id');
+ const highlight = room.get('highlight')
   client
     .to(roomId)
-    .emit('server.highlight');
+    .emit('server.highlight', { highlight });
 };
 
 export const serverSync = debounce(({ io, client, room }, metadata) => {
   const roomId = room.get('id');
   const text = room.get('text');
-  const highlight = room.get('highlight')
+ 
   client
     .to(roomId)
-    .emit('server.sync', { metadata, text, highlight });
+    .emit('server.sync', { metadata, text });
 }, 200);
 
 export const serverLeave = ({ io, room }) => {
